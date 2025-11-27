@@ -1,12 +1,14 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import BatchCard from "@/components/BatchCard";
+import ExcelUpload from "@/components/ExcelUpload";
 import { mockBatches } from "@/lib/mockData";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const [batches, setBatches] = useState(mockBatches);
 
   useEffect(() => {
     const isAuth = localStorage.getItem("isAuthenticated");
@@ -22,6 +24,10 @@ const Dashboard = () => {
   };
 
   const coachEmail = localStorage.getItem("coachEmail");
+
+  const handleDataParsed = (newBatches: any[]) => {
+    setBatches(newBatches);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -53,8 +59,10 @@ const Dashboard = () => {
           </p>
         </div>
 
+        <ExcelUpload onDataParsed={handleDataParsed} />
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {mockBatches.map((batch, index) => (
+          {batches.map((batch, index) => (
             <BatchCard key={batch.id} batch={batch} index={index} />
           ))}
         </div>
