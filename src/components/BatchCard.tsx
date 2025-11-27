@@ -1,17 +1,27 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Users, TrendingDown, TrendingUp } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Users, TrendingDown, TrendingUp, User, GraduationCap, CheckCircle, Circle } from "lucide-react";
 
 interface Batch {
   id: string;
   name: string;
   description: string;
   totalTrainees: number;
+  trainer: string;
+  behavioralTrainer: string;
+  mentor: string;
+  status: string;
   scheduleStatus: {
     onSchedule: number;
     behind: number;
     advanced: number;
+  };
+  milestones: {
+    qualifier: { completed: boolean; date: string };
+    interim: { completed: boolean; date: string };
+    final: { completed: boolean; date: string };
   };
 }
 
@@ -34,7 +44,15 @@ const BatchCard = ({ batch, index }: BatchCardProps) => {
     >
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          <span>{batch.name}</span>
+          <span className="flex items-center gap-2">
+            {batch.name}
+            {batch.status === "graduated" && (
+              <Badge variant="secondary" className="bg-success/10 text-success">
+                <GraduationCap className="w-3 h-3 mr-1" />
+                Graduated
+              </Badge>
+            )}
+          </span>
           <Users className="w-5 h-5 text-muted-foreground" />
         </CardTitle>
         <p className="text-sm text-muted-foreground">{batch.description}</p>
@@ -79,6 +97,54 @@ const BatchCard = ({ batch, index }: BatchCardProps) => {
           <div>
             <p className="text-muted-foreground">Advanced</p>
             <p className="text-lg font-bold text-info">{batch.scheduleStatus.advanced}</p>
+          </div>
+        </div>
+
+        <div className="pt-3 space-y-2 text-xs">
+          <div className="flex items-center gap-2">
+            <User className="w-3 h-3 text-muted-foreground" />
+            <span className="text-muted-foreground">Trainer:</span>
+            <span className="font-medium">{batch.trainer}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <User className="w-3 h-3 text-muted-foreground" />
+            <span className="text-muted-foreground">BH Trainer:</span>
+            <span className="font-medium">{batch.behavioralTrainer}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <User className="w-3 h-3 text-muted-foreground" />
+            <span className="text-muted-foreground">Mentor:</span>
+            <span className="font-medium">{batch.mentor}</span>
+          </div>
+        </div>
+
+        <div className="pt-3 border-t">
+          <p className="text-xs font-medium text-muted-foreground mb-2">Milestones</p>
+          <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center gap-1">
+              {batch.milestones.qualifier.completed ? (
+                <CheckCircle className="w-3 h-3 text-success" />
+              ) : (
+                <Circle className="w-3 h-3 text-muted-foreground" />
+              )}
+              <span>Qualifier</span>
+            </div>
+            <div className="flex items-center gap-1">
+              {batch.milestones.interim.completed ? (
+                <CheckCircle className="w-3 h-3 text-success" />
+              ) : (
+                <Circle className="w-3 h-3 text-muted-foreground" />
+              )}
+              <span>Interim</span>
+            </div>
+            <div className="flex items-center gap-1">
+              {batch.milestones.final.completed ? (
+                <CheckCircle className="w-3 h-3 text-success" />
+              ) : (
+                <Circle className="w-3 h-3 text-muted-foreground" />
+              )}
+              <span>Final</span>
+            </div>
           </div>
         </div>
       </CardContent>

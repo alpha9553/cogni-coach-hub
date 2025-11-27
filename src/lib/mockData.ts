@@ -9,10 +9,16 @@ export const mockBatches = [
     mentor: "Michael Brown",
     startDate: "Jan 15, 2024",
     endDate: "Apr 15, 2024",
+    status: "active",
     scheduleStatus: {
       onSchedule: 18,
       behind: 8,
       advanced: 4,
+    },
+    milestones: {
+      qualifier: { completed: true, date: "Feb 10, 2024" },
+      interim: { completed: true, date: "Mar 5, 2024" },
+      final: { completed: false, date: "Apr 10, 2024" },
     },
   },
   {
@@ -25,10 +31,16 @@ export const mockBatches = [
     mentor: "Jessica Martinez",
     startDate: "Feb 1, 2024",
     endDate: "May 1, 2024",
+    status: "graduated",
     scheduleStatus: {
-      onSchedule: 15,
-      behind: 6,
-      advanced: 4,
+      onSchedule: 25,
+      behind: 0,
+      advanced: 0,
+    },
+    milestones: {
+      qualifier: { completed: true, date: "Feb 20, 2024" },
+      interim: { completed: true, date: "Mar 15, 2024" },
+      final: { completed: true, date: "Apr 25, 2024" },
     },
   },
   {
@@ -41,10 +53,16 @@ export const mockBatches = [
     mentor: "Chris Anderson",
     startDate: "Jan 20, 2024",
     endDate: "Apr 20, 2024",
+    status: "active",
     scheduleStatus: {
       onSchedule: 20,
       behind: 5,
       advanced: 3,
+    },
+    milestones: {
+      qualifier: { completed: true, date: "Feb 15, 2024" },
+      interim: { completed: false, date: "Mar 20, 2024" },
+      final: { completed: false, date: "Apr 15, 2024" },
     },
   },
 ];
