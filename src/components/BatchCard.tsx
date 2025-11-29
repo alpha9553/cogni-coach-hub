@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Users, TrendingDown, TrendingUp, User, GraduationCap, CheckCircle, Circle } from "lucide-react";
+import { Users, TrendingDown, TrendingUp, User, GraduationCap, CheckCircle, Circle, Building2, MapPin } from "lucide-react";
+import StakeholderDialog from "./StakeholderDialog";
+import QualifierDialog from "./QualifierDialog";
 
 interface Batch {
   id: string;
@@ -23,6 +26,22 @@ interface Batch {
     interim: { completed: boolean; date: string };
     final: { completed: boolean; date: string };
   };
+  roomDetails?: {
+    building: string;
+    floor: number;
+    odcNumber: string;
+  };
+  stakeholders?: {
+    trainer: { name: string; hours: number; hourlyRate: number };
+    behavioralTrainer: { name: string; hours: number; hourlyRate: number };
+    mentor: { name: string; hours: number; hourlyRate: number };
+  };
+  qualifierScores?: {
+    average: number;
+    highest: number;
+    lowest: number;
+    passRate: number;
+  };
 }
 
 interface BatchCardProps {
@@ -32,36 +51,85 @@ interface BatchCardProps {
 
 const BatchCard = ({ batch, index }: BatchCardProps) => {
   const navigate = useNavigate();
+  const [stakeholderDialog, setStakeholderDialog] = useState<{
+    open: boolean;
+    name: string;
+    role: string;
+    hours: number;
+    rate: number;
+  }>({ open: false, name: "", role: "", hours: 0, rate: 0 });
+  const [qualifierDialog, setQualifierDialog] = useState(false);
   
   const onSchedulePercent = (batch.scheduleStatus.onSchedule / batch.totalTrainees) * 100;
   const behindPercent = (batch.scheduleStatus.behind / batch.totalTrainees) * 100;
 
+  const handleStakeholderClick = (e: React.MouseEvent, type: 'trainer' | 'behavioralTrainer' | 'mentor') => {
+    e.stopPropagation();
+    if (batch.stakeholders) {
+      const stakeholder = batch.stakeholders[type];
+      const roleNames = {
+        trainer: "Trainer",
+        behavioralTrainer: "Behavioral Trainer",
+        mentor: "Mentor"
+      };
+      setStakeholderDialog({
+        open: true,
+        name: stakeholder.name,
+        role: roleNames[type],
+        hours: stakeholder.hours,
+        rate: stakeholder.hourlyRate,
+      });
+    }
+  };
+
+  const handleQualifierClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (batch.milestones.qualifier.completed && batch.qualifierScores) {
+      setQualifierDialog(true);
+    }
+  };
+
   return (
-    <Card 
-      className="hover:shadow-lg transition-all duration-300 cursor-pointer hover-scale animate-fade-in"
-      style={{ animationDelay: `${index * 0.1}s` }}
-      onClick={() => navigate(`/batch/${batch.id}`)}
-    >
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <span className="flex items-center gap-2">
-            {batch.name}
-            {batch.status === "graduated" && (
-              <Badge variant="secondary" className="bg-success/10 text-success">
-                <GraduationCap className="w-3 h-3 mr-1" />
-                Graduated
-              </Badge>
-            )}
-          </span>
-          <Users className="w-5 h-5 text-muted-foreground" />
-        </CardTitle>
-        <p className="text-sm text-muted-foreground">{batch.description}</p>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Total Trainees</span>
-          <span className="text-2xl font-bold">{batch.totalTrainees}</span>
-        </div>
+    <>
+      <Card 
+        className="hover:shadow-lg transition-all duration-300 cursor-pointer hover-scale animate-fade-in"
+        style={{ animationDelay: `${index * 0.1}s` }}
+        onClick={() => navigate(`/batch/${batch.id}`)}
+      >
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span className="flex items-center gap-2">
+              {batch.name}
+              {batch.status === "graduated" && (
+                <Badge variant="secondary" className="bg-success/10 text-success">
+                  <GraduationCap className="w-3 h-3 mr-1" />
+                  Graduated
+                </Badge>
+              )}
+            </span>
+            <Users className="w-5 h-5 text-muted-foreground" />
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">{batch.description}</p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {batch.roomDetails && (
+            <div className="p-3 bg-muted rounded-lg space-y-1">
+              <div className="flex items-center gap-2 text-sm">
+                <Building2 className="w-4 h-4 text-primary" />
+                <span className="font-medium">{batch.roomDetails.building}</span>
+                <span className="text-muted-foreground">- Floor {batch.roomDetails.floor}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <MapPin className="w-4 h-4 text-primary" />
+                <span className="font-medium">{batch.roomDetails.odcNumber}</span>
+              </div>
+            </div>
+          )}
+
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Total Trainees</span>
+            <span className="text-2xl font-bold">{batch.totalTrainees}</span>
+          </div>
 
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
@@ -104,31 +172,50 @@ const BatchCard = ({ batch, index }: BatchCardProps) => {
           <div className="flex items-center gap-2">
             <User className="w-3 h-3 text-muted-foreground" />
             <span className="text-muted-foreground">Trainer:</span>
-            <span className="font-medium">{batch.trainer}</span>
+            <button 
+              onClick={(e) => handleStakeholderClick(e, 'trainer')}
+              className="font-medium hover:text-primary hover:underline transition-colors"
+            >
+              {batch.trainer}
+            </button>
           </div>
           <div className="flex items-center gap-2">
             <User className="w-3 h-3 text-muted-foreground" />
             <span className="text-muted-foreground">BH Trainer:</span>
-            <span className="font-medium">{batch.behavioralTrainer}</span>
+            <button 
+              onClick={(e) => handleStakeholderClick(e, 'behavioralTrainer')}
+              className="font-medium hover:text-primary hover:underline transition-colors"
+            >
+              {batch.behavioralTrainer}
+            </button>
           </div>
           <div className="flex items-center gap-2">
             <User className="w-3 h-3 text-muted-foreground" />
             <span className="text-muted-foreground">Mentor:</span>
-            <span className="font-medium">{batch.mentor}</span>
+            <button 
+              onClick={(e) => handleStakeholderClick(e, 'mentor')}
+              className="font-medium hover:text-primary hover:underline transition-colors"
+            >
+              {batch.mentor}
+            </button>
           </div>
         </div>
 
         <div className="pt-3 border-t">
           <p className="text-xs font-medium text-muted-foreground mb-2">Milestones</p>
           <div className="flex items-center justify-between text-xs">
-            <div className="flex items-center gap-1">
+            <button 
+              onClick={handleQualifierClick}
+              className={`flex items-center gap-1 ${batch.milestones.qualifier.completed ? 'hover:text-primary transition-colors' : ''}`}
+              disabled={!batch.milestones.qualifier.completed}
+            >
               {batch.milestones.qualifier.completed ? (
                 <CheckCircle className="w-3 h-3 text-success" />
               ) : (
                 <Circle className="w-3 h-3 text-muted-foreground" />
               )}
               <span>Qualifier</span>
-            </div>
+            </button>
             <div className="flex items-center gap-1">
               {batch.milestones.interim.completed ? (
                 <CheckCircle className="w-3 h-3 text-success" />
@@ -149,6 +236,25 @@ const BatchCard = ({ batch, index }: BatchCardProps) => {
         </div>
       </CardContent>
     </Card>
+
+      <StakeholderDialog
+        open={stakeholderDialog.open}
+        onOpenChange={(open) => setStakeholderDialog({ ...stakeholderDialog, open })}
+        name={stakeholderDialog.name}
+        role={stakeholderDialog.role}
+        contributionHours={stakeholderDialog.hours}
+        hourlyRate={stakeholderDialog.rate}
+      />
+
+      {batch.qualifierScores && (
+        <QualifierDialog
+          open={qualifierDialog}
+          onOpenChange={setQualifierDialog}
+          batchName={batch.name}
+          qualifierScores={batch.qualifierScores}
+        />
+      )}
+    </>
   );
 };
 

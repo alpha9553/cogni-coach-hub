@@ -1,4 +1,4 @@
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend } from "recharts";
+import { PieChart, Pie, ResponsiveContainer, Tooltip, Legend, Cell } from "recharts";
 
 interface ScheduleStatus {
   onSchedule: number;
@@ -12,25 +12,31 @@ interface ProgressChartProps {
 
 const ProgressChart = ({ data }: ProgressChartProps) => {
   const chartData = [
-    {
-      name: "Schedule Status",
-      "On Schedule": data.onSchedule,
-      "Behind Schedule": data.behind,
-      "Advanced": data.advanced,
-    },
+    { name: "On Schedule", value: data.onSchedule, color: "hsl(var(--success))" },
+    { name: "Behind Schedule", value: data.behind, color: "hsl(var(--warning))" },
+    { name: "Advanced", value: data.advanced, color: "hsl(var(--info))" },
   ];
 
   return (
     <ResponsiveContainer width="100%" height={300}>
-      <BarChart data={chartData}>
-        <XAxis dataKey="name" />
-        <YAxis />
+      <PieChart>
+        <Pie
+          data={chartData}
+          cx="50%"
+          cy="50%"
+          labelLine={false}
+          label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+          outerRadius={80}
+          fill="#8884d8"
+          dataKey="value"
+        >
+          {chartData.map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={entry.color} />
+          ))}
+        </Pie>
         <Tooltip />
         <Legend />
-        <Bar dataKey="On Schedule" fill="hsl(var(--success))" radius={[8, 8, 0, 0]} />
-        <Bar dataKey="Behind Schedule" fill="hsl(var(--warning))" radius={[8, 8, 0, 0]} />
-        <Bar dataKey="Advanced" fill="hsl(var(--info))" radius={[8, 8, 0, 0]} />
-      </BarChart>
+      </PieChart>
     </ResponsiveContainer>
   );
 };

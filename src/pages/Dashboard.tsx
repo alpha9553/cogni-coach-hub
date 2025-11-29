@@ -5,6 +5,7 @@ import { LogOut } from "lucide-react";
 import BatchCard from "@/components/BatchCard";
 import ExcelUpload from "@/components/ExcelUpload";
 import { mockBatches } from "@/lib/mockData";
+import cognizantLogo from "@/assets/cognizant-logo.png";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -35,9 +36,7 @@ const Dashboard = () => {
       <header className="border-b bg-card shadow-sm">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-lg font-bold text-primary-foreground">CC</span>
-            </div>
+            <img src={cognizantLogo} alt="Cognizant" className="h-8" />
             <div>
               <h1 className="text-xl font-bold text-foreground">Coach Dashboard</h1>
               <p className="text-sm text-muted-foreground">{coachEmail}</p>

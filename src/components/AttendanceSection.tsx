@@ -3,28 +3,46 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar, Save } from "lucide-react";
 import { toast } from "sonner";
 
 interface AttendanceSectionProps {
   batchId: string;
+  totalTrainees: number;
 }
 
-const AttendanceSection = ({ batchId }: AttendanceSectionProps) => {
+// Mock trainee data - in real app, this would come from database
+const generateTrainees = (count: number) => {
+  return Array.from({ length: count }, (_, i) => ({
+    id: `trainee-${i + 1}`,
+    name: `Trainee ${i + 1}`,
+  }));
+};
+
+const AttendanceSection = ({ batchId, totalTrainees }: AttendanceSectionProps) => {
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
-  const [present, setPresent] = useState("");
-  const [absent, setAbsent] = useState("");
+  const [trainees] = useState(generateTrainees(totalTrainees));
+  const [absentIds, setAbsentIds] = useState<Set<string>>(new Set());
+
+  const handleToggleAbsent = (traineeId: string) => {
+    setAbsentIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(traineeId)) {
+        newSet.delete(traineeId);
+      } else {
+        newSet.add(traineeId);
+      }
+      return newSet;
+    });
+  };
 
   const handleSaveAttendance = () => {
-    if (!present || !absent) {
-      toast.error("Please fill in all fields");
-      return;
-    }
+    const presentCount = totalTrainees - absentIds.size;
+    const absentCount = absentIds.size;
     
     // Mock save - replace with actual API call later
-    toast.success("Attendance saved successfully!");
-    setPresent("");
-    setAbsent("");
+    toast.success(`Attendance saved! Present: ${presentCount}, Absent: ${absentCount}`);
   };
 
   return (
@@ -36,7 +54,7 @@ const AttendanceSection = ({ batchId }: AttendanceSectionProps) => {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="date">Date</Label>
             <Input
@@ -44,33 +62,41 @@ const AttendanceSection = ({ batchId }: AttendanceSectionProps) => {
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
+              className="max-w-xs"
             />
           </div>
+
           <div className="space-y-2">
-            <Label htmlFor="present">Present</Label>
-            <Input
-              id="present"
-              type="number"
-              placeholder="Number of trainees present"
-              value={present}
-              onChange={(e) => setPresent(e.target.value)}
-            />
+            <Label>Mark Absent Trainees (Others will be marked present)</Label>
+            <div className="border rounded-lg p-4 max-h-96 overflow-y-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {trainees.map((trainee) => (
+                  <div key={trainee.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={trainee.id}
+                      checked={absentIds.has(trainee.id)}
+                      onCheckedChange={() => handleToggleAbsent(trainee.id)}
+                    />
+                    <label
+                      htmlFor={trainee.id}
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                    >
+                      {trainee.name}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Present: {totalTrainees - absentIds.size} | Absent: {absentIds.size}
+            </p>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="absent">Absent</Label>
-            <Input
-              id="absent"
-              type="number"
-              placeholder="Number of trainees absent"
-              value={absent}
-              onChange={(e) => setAbsent(e.target.value)}
-            />
-          </div>
+
+          <Button onClick={handleSaveAttendance} className="gap-2">
+            <Save className="w-4 h-4" />
+            Save Attendance
+          </Button>
         </div>
-        <Button onClick={handleSaveAttendance} className="mt-4 gap-2">
-          <Save className="w-4 h-4" />
-          Save Attendance
-        </Button>
       </CardContent>
     </Card>
   );
