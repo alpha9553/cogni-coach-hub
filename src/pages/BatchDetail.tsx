@@ -1,16 +1,26 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Calendar, Users, User } from "lucide-react";
+import { ArrowLeft, Calendar, Users, User, Building2, MapPin } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { mockBatches } from "@/lib/mockData";
 import ProgressChart from "@/components/ProgressChart";
 import AttendanceSection from "@/components/AttendanceSection";
+import StakeholderDialog from "@/components/StakeholderDialog";
+import QualifierDialog from "@/components/QualifierDialog";
 
 const BatchDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const batch = mockBatches.find((b) => b.id === id);
+  const [stakeholderDialog, setStakeholderDialog] = useState<{
+    open: boolean;
+    name: string;
+    role: string;
+    hours: number;
+    rate: number;
+  }>({ open: false, name: "", role: "", hours: 0, rate: 0 });
+  const [qualifierDialog, setQualifierDialog] = useState(false);
 
   useEffect(() => {
     const isAuth = localStorage.getItem("isAuthenticated");
@@ -23,128 +33,215 @@ const BatchDetail = () => {
     return <div>Batch not found</div>;
   }
 
+  const handleStakeholderClick = (type: 'trainer' | 'behavioralTrainer' | 'mentor') => {
+    if (batch.stakeholders) {
+      const stakeholder = batch.stakeholders[type];
+      const roleNames = {
+        trainer: "Trainer",
+        behavioralTrainer: "Behavioral Trainer",
+        mentor: "Mentor"
+      };
+      setStakeholderDialog({
+        open: true,
+        name: stakeholder.name,
+        role: roleNames[type],
+        hours: stakeholder.hours,
+        rate: stakeholder.hourlyRate,
+      });
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card shadow-sm">
-        <div className="container mx-auto px-4 py-4">
-          <Button variant="ghost" onClick={() => navigate("/dashboard")} className="gap-2 mb-4">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Dashboard
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">{batch.name}</h1>
-            <p className="text-muted-foreground">{batch.description}</p>
+    <>
+      <div className="min-h-screen bg-background">
+        {/* Header */}
+        <header className="border-b bg-card shadow-sm">
+          <div className="container mx-auto px-4 py-4">
+            <Button variant="ghost" onClick={() => navigate("/dashboard")} className="gap-2 mb-4">
+              <ArrowLeft className="w-4 h-4" />
+              Back to Dashboard
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">{batch.name}</h1>
+              <p className="text-muted-foreground">{batch.description}</p>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        {/* Metadata Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card className="animate-fade-in">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                <User className="w-4 h-4" />
-                Trainer
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-xl font-semibold">{batch.trainer}</p>
-            </CardContent>
-          </Card>
-
-          <Card className="animate-fade-in" style={{ animationDelay: "0.1s" }}>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                <User className="w-4 h-4" />
-                Behavioral Trainer
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-xl font-semibold">{batch.behavioralTrainer}</p>
-            </CardContent>
-          </Card>
-
-          <Card className="animate-fade-in" style={{ animationDelay: "0.2s" }}>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                <User className="w-4 h-4" />
-                Mentor
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-xl font-semibold">{batch.mentor}</p>
-            </CardContent>
-          </Card>
-
-          <Card className="animate-fade-in" style={{ animationDelay: "0.3s" }}>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                Duration
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm font-medium">{batch.startDate}</p>
-              <p className="text-xs text-muted-foreground">to</p>
-              <p className="text-sm font-medium">{batch.endDate}</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Progress Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <Card className="animate-fade-in" style={{ animationDelay: "0.4s" }}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="w-5 h-5" />
-                Schedule Status Distribution
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ProgressChart data={batch.scheduleStatus} />
-            </CardContent>
-          </Card>
-
-          <Card className="animate-fade-in" style={{ animationDelay: "0.5s" }}>
-            <CardHeader>
-              <CardTitle>Quick Stats</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex justify-between items-center p-3 bg-success/10 rounded-lg">
-                <span className="text-sm font-medium">On Schedule</span>
-                <span className="text-2xl font-bold text-success">
-                  {batch.scheduleStatus.onSchedule}
-                </span>
-              </div>
-              <div className="flex justify-between items-center p-3 bg-warning/10 rounded-lg">
-                <span className="text-sm font-medium">Behind Schedule</span>
-                <span className="text-2xl font-bold text-warning">
-                  {batch.scheduleStatus.behind}
-                </span>
-              </div>
-              <div className="flex justify-between items-center p-3 bg-info/10 rounded-lg">
-                <span className="text-sm font-medium">Advanced</span>
-                <span className="text-2xl font-bold text-info">
-                  {batch.scheduleStatus.advanced}
-                </span>
-              </div>
-              <div className="pt-3 border-t">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium text-muted-foreground">Total Trainees</span>
-                  <span className="text-2xl font-bold">{batch.totalTrainees}</span>
+        {/* Main Content */}
+        <main className="container mx-auto px-4 py-8">
+          {/* Room Details */}
+          {batch.roomDetails && (
+            <Card className="mb-8 animate-fade-in">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Building2 className="w-5 h-5" />
+                  Training Room Details
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
+                    <Building2 className="w-5 h-5 text-primary" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Building</p>
+                      <p className="font-semibold">{batch.roomDetails.building}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
+                    <MapPin className="w-5 h-5 text-primary" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Floor</p>
+                      <p className="font-semibold">Floor {batch.roomDetails.floor}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
+                    <MapPin className="w-5 h-5 text-primary" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Room Number</p>
+                      <p className="font-semibold">{batch.roomDetails.odcNumber}</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              </CardContent>
+            </Card>
+          )}
 
-        {/* Attendance Section */}
-        <AttendanceSection batchId={batch.id} />
-      </main>
-    </div>
+          {/* Metadata Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <Card className="animate-fade-in cursor-pointer hover:shadow-lg transition-all" onClick={() => handleStakeholderClick('trainer')}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                  <User className="w-4 h-4" />
+                  Trainer
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xl font-semibold hover:text-primary transition-colors">{batch.trainer}</p>
+                <p className="text-xs text-muted-foreground mt-1">Click for details</p>
+              </CardContent>
+            </Card>
+
+            <Card className="animate-fade-in cursor-pointer hover:shadow-lg transition-all" style={{ animationDelay: "0.1s" }} onClick={() => handleStakeholderClick('behavioralTrainer')}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                  <User className="w-4 h-4" />
+                  Behavioral Trainer
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xl font-semibold hover:text-primary transition-colors">{batch.behavioralTrainer}</p>
+                <p className="text-xs text-muted-foreground mt-1">Click for details</p>
+              </CardContent>
+            </Card>
+
+            <Card className="animate-fade-in cursor-pointer hover:shadow-lg transition-all" style={{ animationDelay: "0.2s" }} onClick={() => handleStakeholderClick('mentor')}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                  <User className="w-4 h-4" />
+                  Mentor
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xl font-semibold hover:text-primary transition-colors">{batch.mentor}</p>
+                <p className="text-xs text-muted-foreground mt-1">Click for details</p>
+              </CardContent>
+            </Card>
+
+            <Card className="animate-fade-in" style={{ animationDelay: "0.3s" }}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                  <Calendar className="w-4 h-4" />
+                  Duration
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm font-medium">{batch.startDate}</p>
+                <p className="text-xs text-muted-foreground">to</p>
+                <p className="text-sm font-medium">{batch.endDate}</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Progress Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <Card className="animate-fade-in" style={{ animationDelay: "0.4s" }}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="w-5 h-5" />
+                  Schedule Status Distribution
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ProgressChart data={batch.scheduleStatus} />
+              </CardContent>
+            </Card>
+
+            <Card className="animate-fade-in" style={{ animationDelay: "0.5s" }}>
+              <CardHeader>
+                <CardTitle>Quick Stats</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between items-center p-3 bg-success/10 rounded-lg">
+                  <span className="text-sm font-medium">On Schedule</span>
+                  <span className="text-2xl font-bold text-success">
+                    {batch.scheduleStatus.onSchedule}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-warning/10 rounded-lg">
+                  <span className="text-sm font-medium">Behind Schedule</span>
+                  <span className="text-2xl font-bold text-warning">
+                    {batch.scheduleStatus.behind}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-info/10 rounded-lg">
+                  <span className="text-sm font-medium">Advanced</span>
+                  <span className="text-2xl font-bold text-info">
+                    {batch.scheduleStatus.advanced}
+                  </span>
+                </div>
+                <div className="pt-3 border-t">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-muted-foreground">Total Trainees</span>
+                    <span className="text-2xl font-bold">{batch.totalTrainees}</span>
+                  </div>
+                </div>
+                {batch.milestones.qualifier.completed && batch.qualifierScores && (
+                  <Button 
+                    variant="outline" 
+                    className="w-full mt-4"
+                    onClick={() => setQualifierDialog(true)}
+                  >
+                    View Qualifier Scores
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Attendance Section */}
+          <AttendanceSection batchId={batch.id} totalTrainees={batch.totalTrainees} />
+        </main>
+      </div>
+
+      <StakeholderDialog
+        open={stakeholderDialog.open}
+        onOpenChange={(open) => setStakeholderDialog({ ...stakeholderDialog, open })}
+        name={stakeholderDialog.name}
+        role={stakeholderDialog.role}
+        contributionHours={stakeholderDialog.hours}
+        hourlyRate={stakeholderDialog.rate}
+      />
+
+      {batch.qualifierScores && (
+        <QualifierDialog
+          open={qualifierDialog}
+          onOpenChange={setQualifierDialog}
+          batchName={batch.name}
+          qualifierScores={batch.qualifierScores}
+        />
+      )}
+    </>
   );
 };
 

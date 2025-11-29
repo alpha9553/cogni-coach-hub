@@ -92,6 +92,34 @@ const ExcelUpload = ({ onDataParsed }: ExcelUploadProps) => {
               date: row["Final Date"] || "" 
             },
           },
+          roomDetails: {
+            building: row["Building"] || "SDB1",
+            floor: parseInt(row["Floor"]) || 1,
+            odcNumber: row["ODC Number"] || row["Room"] || "",
+          },
+          stakeholders: {
+            trainer: {
+              name: row["Trainer"] || "N/A",
+              hours: parseInt(row["Trainer Hours"]) || 100,
+              hourlyRate: parseInt(row["Trainer Rate"]) || 500,
+            },
+            behavioralTrainer: {
+              name: row["Behavioral Trainer"] || row["BH Trainer"] || "N/A",
+              hours: parseInt(row["BH Trainer Hours"]) || 80,
+              hourlyRate: parseInt(row["BH Trainer Rate"]) || 450,
+            },
+            mentor: {
+              name: row["Mentor"] || "N/A",
+              hours: parseInt(row["Mentor Hours"]) || 100,
+              hourlyRate: parseInt(row["Mentor Rate"]) || 600,
+            },
+          },
+          qualifierScores: {
+            average: parseInt(row["Qualifier Avg"]) || 0,
+            highest: parseInt(row["Qualifier High"]) || 0,
+            lowest: parseInt(row["Qualifier Low"]) || 0,
+            passRate: parseInt(row["Qualifier Pass Rate"]) || 0,
+          },
         });
       }
 
