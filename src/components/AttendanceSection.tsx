@@ -1,10 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar, Save } from "lucide-react";
+import { Calendar, Save, Eye } from "lucide-react";
 import { toast } from "sonner";
 
 interface AttendanceSectionProps {
@@ -21,6 +22,7 @@ const generateTrainees = (count: number) => {
 };
 
 const AttendanceSection = ({ batchId, totalTrainees }: AttendanceSectionProps) => {
+  const navigate = useNavigate();
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [trainees] = useState(generateTrainees(totalTrainees));
   const [absentIds, setAbsentIds] = useState<Set<string>>(new Set());
@@ -71,18 +73,29 @@ const AttendanceSection = ({ batchId, totalTrainees }: AttendanceSectionProps) =
             <div className="border rounded-lg p-4 max-h-96 overflow-y-auto">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {trainees.map((trainee) => (
-                  <div key={trainee.id} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={trainee.id}
-                      checked={absentIds.has(trainee.id)}
-                      onCheckedChange={() => handleToggleAbsent(trainee.id)}
-                    />
-                    <label
-                      htmlFor={trainee.id}
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                  <div key={trainee.id} className="flex items-center justify-between space-x-2 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id={trainee.id}
+                        checked={absentIds.has(trainee.id)}
+                        onCheckedChange={() => handleToggleAbsent(trainee.id)}
+                      />
+                      <label
+                        htmlFor={trainee.id}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      >
+                        {trainee.name}
+                      </label>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => navigate(`/batch/${batchId}/student/${trainee.id}`)}
+                      className="gap-1 h-7 text-xs"
                     >
-                      {trainee.name}
-                    </label>
+                      <Eye className="w-3 h-3" />
+                      View
+                    </Button>
                   </div>
                 ))}
               </div>

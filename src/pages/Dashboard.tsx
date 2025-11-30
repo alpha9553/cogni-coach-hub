@@ -60,10 +60,30 @@ const Dashboard = () => {
 
         <ExcelUpload onDataParsed={handleDataParsed} />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {batches.map((batch, index) => (
-            <BatchCard key={batch.id} batch={batch} index={index} />
-          ))}
+        {/* Ongoing Training Batches */}
+        <div className="mb-12">
+          <h3 className="text-2xl font-semibold text-foreground mb-4">Ongoing Training</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {batches.filter(b => b.status !== "graduated").map((batch, index) => (
+              <BatchCard key={batch.id} batch={batch} index={index} />
+            ))}
+          </div>
+          {batches.filter(b => b.status !== "graduated").length === 0 && (
+            <p className="text-muted-foreground">No ongoing training batches</p>
+          )}
+        </div>
+
+        {/* Graduated Batches */}
+        <div>
+          <h3 className="text-2xl font-semibold text-foreground mb-4">Graduated Batches</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {batches.filter(b => b.status === "graduated").map((batch, index) => (
+              <BatchCard key={batch.id} batch={batch} index={index} />
+            ))}
+          </div>
+          {batches.filter(b => b.status === "graduated").length === 0 && (
+            <p className="text-muted-foreground">No graduated batches yet</p>
+          )}
         </div>
       </main>
     </div>
