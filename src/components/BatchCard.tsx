@@ -6,43 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Users, TrendingDown, TrendingUp, User, GraduationCap, CheckCircle, Circle, Building2, MapPin } from "lucide-react";
 import StakeholderDialog from "./StakeholderDialog";
 import QualifierDialog from "./QualifierDialog";
-
-interface Batch {
-  id: string;
-  name: string;
-  description: string;
-  totalTrainees: number;
-  trainer: string;
-  behavioralTrainer: string;
-  mentor: string;
-  status: string;
-  scheduleStatus: {
-    onSchedule: number;
-    behind: number;
-    advanced: number;
-  };
-  milestones: {
-    qualifier: { completed: boolean; date: string };
-    interim: { completed: boolean; date: string };
-    final: { completed: boolean; date: string };
-  };
-  roomDetails?: {
-    building: string;
-    floor: number;
-    odcNumber: string;
-  };
-  stakeholders?: {
-    trainer: { name: string; hours: number; hourlyRate: number };
-    behavioralTrainer: { name: string; hours: number; hourlyRate: number };
-    mentor: { name: string; hours: number; hourlyRate: number };
-  };
-  qualifierScores?: {
-    average: number;
-    highest: number;
-    lowest: number;
-    passRate: number;
-  };
-}
+import { Batch } from "@/context/BatchContext";
 
 interface BatchCardProps {
   batch: Batch;

@@ -1,15 +1,15 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import BatchCard from "@/components/BatchCard";
 import ExcelUpload from "@/components/ExcelUpload";
-import { mockBatches } from "@/lib/mockData";
+import { useBatches, Batch } from "@/context/BatchContext";
 import cognizantLogo from "@/assets/cognizant-logo.png";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [batches, setBatches] = useState(mockBatches);
+  const { batches, setBatches } = useBatches();
 
   useEffect(() => {
     const isAuth = localStorage.getItem("isAuthenticated");
@@ -26,7 +26,7 @@ const Dashboard = () => {
 
   const coachEmail = localStorage.getItem("coachEmail");
 
-  const handleDataParsed = (newBatches: any[]) => {
+  const handleDataParsed = (newBatches: Batch[]) => {
     setBatches(newBatches);
   };
 
