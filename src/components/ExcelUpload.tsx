@@ -181,15 +181,13 @@ const ExcelUpload = ({ onDataParsed }: ExcelUploadProps) => {
         id: empId || `trainee-${i}`,
         name,
         email,
-        empId,
+        employeeId: empId,
         scheduleAdherence,
         learningStatus,
-        interimEval,
-        finalEval,
-        finalReAttempt,
-        finalStatus,
-        qualifierScore,
-        qualifierEligibility,
+        interimStatus: interimEval,
+        finalStatus: finalEval || finalStatus,
+        qualifierScore: qualifierScore > 0 ? qualifierScore : null,
+        eligibility: qualifierEligibility || "Eligible",
       });
     }
 

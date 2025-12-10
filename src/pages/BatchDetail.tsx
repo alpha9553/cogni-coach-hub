@@ -1,18 +1,22 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Calendar, Users, User, Building2, MapPin } from "lucide-react";
+import { ArrowLeft, Calendar, Users, User, Building2, MapPin, Edit } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { mockBatches } from "@/lib/mockData";
+import { useBatches, Trainee } from "@/context/BatchContext";
 import ProgressChart from "@/components/ProgressChart";
 import AttendanceSection from "@/components/AttendanceSection";
 import StakeholderDialog from "@/components/StakeholderDialog";
 import QualifierDialog from "@/components/QualifierDialog";
+import EditBatchDialog from "@/components/EditBatchDialog";
+import TraineeListSection from "@/components/TraineeListSection";
 
 const BatchDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const batch = mockBatches.find((b) => b.id === id);
+  const { getBatchById, updateBatch, addTrainee } = useBatches();
+  const batch = getBatchById(id || "");
+  
   const [stakeholderDialog, setStakeholderDialog] = useState<{
     open: boolean;
     name: string;
@@ -21,6 +25,7 @@ const BatchDetail = () => {
     rate: number;
   }>({ open: false, name: "", role: "", hours: 0, rate: 0 });
   const [qualifierDialog, setQualifierDialog] = useState(false);
+  const [editDialog, setEditDialog] = useState(false);
 
   useEffect(() => {
     const isAuth = localStorage.getItem("isAuthenticated");
@@ -30,7 +35,14 @@ const BatchDetail = () => {
   }, [navigate]);
 
   if (!batch) {
-    return <div>Batch not found</div>;
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-2">Batch not found</h2>
+          <Button onClick={() => navigate("/dashboard")}>Back to Dashboard</Button>
+        </div>
+      </div>
+    );
   }
 
   const handleStakeholderClick = (type: 'trainer' | 'behavioralTrainer' | 'mentor') => {
@@ -51,19 +63,38 @@ const BatchDetail = () => {
     }
   };
 
+  const handleSaveBatch = (updates: Partial<typeof batch>) => {
+    updateBatch(batch.id, updates);
+  };
+
+  const handleAddTrainee = (trainee: Trainee) => {
+    addTrainee(batch.id, trainee);
+  };
+
   return (
     <>
       <div className="min-h-screen bg-background">
         {/* Header */}
         <header className="border-b bg-card shadow-sm">
           <div className="container mx-auto px-4 py-4">
-            <Button variant="ghost" onClick={() => navigate("/dashboard")} className="gap-2 mb-4">
-              <ArrowLeft className="w-4 h-4" />
-              Back to Dashboard
-            </Button>
+            <div className="flex items-center justify-between mb-4">
+              <Button variant="ghost" onClick={() => navigate("/dashboard")} className="gap-2">
+                <ArrowLeft className="w-4 h-4" />
+                Back to Dashboard
+              </Button>
+              <Button variant="outline" onClick={() => setEditDialog(true)} className="gap-2">
+                <Edit className="w-4 h-4" />
+                Edit Details
+              </Button>
+            </div>
             <div>
               <h1 className="text-2xl font-bold text-foreground">{batch.name}</h1>
               <p className="text-muted-foreground">{batch.description}</p>
+              {batch.currentWeek && (
+                <p className="text-sm text-primary mt-1">
+                  Week {batch.currentWeek} of {batch.totalWeeks || "N/A"}
+                </p>
+              )}
             </div>
           </div>
         </header>
@@ -156,9 +187,9 @@ const BatchDetail = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm font-medium">{batch.startDate}</p>
+                <p className="text-sm font-medium">{batch.startDate || "N/A"}</p>
                 <p className="text-xs text-muted-foreground">to</p>
-                <p className="text-sm font-medium">{batch.endDate}</p>
+                <p className="text-sm font-medium">{batch.endDate || "N/A"}</p>
               </CardContent>
             </Card>
           </div>
@@ -219,6 +250,15 @@ const BatchDetail = () => {
             </Card>
           </div>
 
+          {/* Trainee List Section */}
+          <div className="mb-8">
+            <TraineeListSection
+              batchId={batch.id}
+              trainees={batch.trainees || []}
+              onAddTrainee={handleAddTrainee}
+            />
+          </div>
+
           {/* Attendance Section */}
           <AttendanceSection batchId={batch.id} totalTrainees={batch.totalTrainees} />
         </main>
@@ -241,6 +281,13 @@ const BatchDetail = () => {
           qualifierScores={batch.qualifierScores}
         />
       )}
+
+      <EditBatchDialog
+        open={editDialog}
+        onOpenChange={setEditDialog}
+        batch={batch}
+        onSave={handleSaveBatch}
+      />
     </>
   );
 };
