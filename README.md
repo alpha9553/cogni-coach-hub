@@ -1,4 +1,106 @@
-# Welcome to your Lovable project
+# Cognizant Coach Dashboard
+
+A modern dashboard for Cognizant coaches to manage training batches, track trainee progress, attendance, and performance.
+
+## Features
+
+- 📊 **Batch Management**: View and manage ongoing and graduated training batches
+- 📈 **Progress Tracking**: Pie charts showing trainee schedule status distribution
+- 👥 **Attendance Management**: Mark individual students as absent
+- 📋 **Excel Upload**: Upload Excel files to automatically update dashboard data
+- 👤 **Student Details**: View complete student information including scores and attendance
+- 💰 **Stakeholder Tracking**: Track trainer/mentor hours and payouts
+- 🏆 **Qualifier Scores**: View batch qualifier performance metrics
+
+---
+
+## Local Development Setup (VS Code)
+
+### Prerequisites
+
+Make sure you have the following installed:
+- **Node.js** (v18 or higher) - [Download here](https://nodejs.org/)
+- **npm** (comes with Node.js) or **bun**
+- **VS Code** - [Download here](https://code.visualstudio.com/)
+
+### Step-by-Step Setup
+
+1. **Clone the repository**
+   ```bash
+   git clone <your-repo-url>
+   cd <project-folder>
+   ```
+
+2. **Open in VS Code**
+   ```bash
+   code .
+   ```
+
+3. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+4. **Start the development server**
+   ```bash
+   npm run dev
+   ```
+
+5. **Open in browser**
+   - The app will be available at `http://localhost:5173`
+   - Login with any email/password to access the dashboard
+
+### Recommended VS Code Extensions
+
+- ESLint
+- Prettier
+- Tailwind CSS IntelliSense
+- TypeScript Vue Plugin (Volar)
+
+---
+
+## Using the Excel Upload Feature
+
+1. Login to the dashboard
+2. Click "Choose Excel File" button
+3. Upload your Excel file (.xlsx or .xls)
+4. The dashboard will automatically update with the new data
+
+See `EXCEL_TEMPLATE.md` for the required Excel file format.
+
+---
+
+## Project Structure
+
+```
+src/
+├── assets/          # Images and static assets
+├── components/      # Reusable React components
+│   ├── ui/          # Shadcn UI components
+│   ├── BatchCard.tsx
+│   ├── ExcelUpload.tsx
+│   ├── AttendanceSection.tsx
+│   └── ...
+├── pages/           # Page components
+│   ├── Dashboard.tsx
+│   ├── BatchDetail.tsx
+│   ├── StudentDetail.tsx
+│   └── ...
+├── lib/             # Utilities and mock data
+└── hooks/           # Custom React hooks
+```
+
+---
+
+## Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+
+---
+
+# Original Lovable Documentation
 
 ## Project info
 
