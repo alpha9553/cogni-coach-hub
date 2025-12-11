@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Users, TrendingDown, TrendingUp, User, GraduationCap, CheckCircle, Circle, Building2, MapPin } from "lucide-react";
+import { Users, TrendingDown, TrendingUp, User, GraduationCap, CheckCircle, Circle, Building2, MapPin, BookOpen } from "lucide-react";
 import StakeholderDialog from "./StakeholderDialog";
 import QualifierDialog from "./QualifierDialog";
 import { Batch } from "@/context/BatchContext";
@@ -64,10 +64,15 @@ const BatchCard = ({ batch, index }: BatchCardProps) => {
           <CardTitle className="flex items-center justify-between">
             <span className="flex items-center gap-2">
               {batch.name}
-              {batch.status === "graduated" && (
-                <Badge variant="secondary" className="bg-success/10 text-success">
+              {batch.status === "graduated" ? (
+                <Badge variant="secondary" className="bg-success/10 text-success border border-success/20">
                   <GraduationCap className="w-3 h-3 mr-1" />
                   Graduated
+                </Badge>
+              ) : (
+                <Badge variant="secondary" className="bg-primary/10 text-primary border border-primary/20">
+                  <BookOpen className="w-3 h-3 mr-1" />
+                  Ongoing Training
                 </Badge>
               )}
             </span>
