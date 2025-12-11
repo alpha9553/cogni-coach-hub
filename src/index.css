@@ -96,6 +96,69 @@ All colors MUST be HSL.
 
 @layer utilities {
   .hover-scale {
-    @apply transition-transform duration-200 hover:scale-105;
+    @apply transition-transform duration-200 hover:scale-[1.02];
+  }
+  
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1;
+  }
+  
+  .btn-glow {
+    @apply relative overflow-hidden;
+  }
+  
+  .btn-glow::after {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full;
+    animation: shimmer 2s infinite;
+  }
+  
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+  
+  .gradient-border {
+    @apply relative;
+  }
+  
+  .gradient-border::before {
+    content: '';
+    @apply absolute inset-0 rounded-lg p-[1px] -z-10;
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--info)), hsl(var(--success)));
+  }
+}
+
+@layer components {
+  .page-transition {
+    animation: pageIn 0.4s ease-out;
+  }
+  
+  @keyframes pageIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .stagger-item {
+    opacity: 0;
+    animation: fadeSlideIn 0.5s ease-out forwards;
+  }
+  
+  @keyframes fadeSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }

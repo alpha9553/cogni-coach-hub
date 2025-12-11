@@ -7,25 +7,26 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar, Save, Eye } from "lucide-react";
 import { toast } from "sonner";
+import { Trainee } from "@/context/BatchContext";
 
 interface AttendanceSectionProps {
   batchId: string;
   totalTrainees: number;
+  trainees?: Trainee[];
 }
 
-// Mock trainee data - in real app, this would come from database
-const generateTrainees = (count: number) => {
-  return Array.from({ length: count }, (_, i) => ({
-    id: `trainee-${i + 1}`,
-    name: `Trainee ${i + 1}`,
-  }));
-};
-
-const AttendanceSection = ({ batchId, totalTrainees }: AttendanceSectionProps) => {
+const AttendanceSection = ({ batchId, totalTrainees, trainees = [] }: AttendanceSectionProps) => {
   const navigate = useNavigate();
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
-  const [trainees] = useState(generateTrainees(totalTrainees));
   const [absentIds, setAbsentIds] = useState<Set<string>>(new Set());
+
+  // Use real trainees if available, otherwise generate placeholders
+  const displayTrainees = trainees.length > 0 
+    ? trainees.map(t => ({ id: t.id, name: t.name }))
+    : Array.from({ length: totalTrainees }, (_, i) => ({
+        id: `trainee-${i + 1}`,
+        name: `Trainee ${i + 1}`,
+      }));
 
   const handleToggleAbsent = (traineeId: string) => {
     setAbsentIds((prev) => {
@@ -40,7 +41,7 @@ const AttendanceSection = ({ batchId, totalTrainees }: AttendanceSectionProps) =
   };
 
   const handleSaveAttendance = () => {
-    const presentCount = totalTrainees - absentIds.size;
+    const presentCount = displayTrainees.length - absentIds.size;
     const absentCount = absentIds.size;
     
     // Mock save - replace with actual API call later
@@ -72,13 +73,18 @@ const AttendanceSection = ({ batchId, totalTrainees }: AttendanceSectionProps) =
             <Label>Mark Absent Trainees (Others will be marked present)</Label>
             <div className="border rounded-lg p-4 max-h-96 overflow-y-auto">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {trainees.map((trainee) => (
-                  <div key={trainee.id} className="flex items-center justify-between space-x-2 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                {displayTrainees.map((trainee, idx) => (
+                  <div 
+                    key={trainee.id} 
+                    className="flex items-center justify-between space-x-2 p-2 rounded-lg hover:bg-muted/50 transition-all animate-fade-in"
+                    style={{ animationDelay: `${idx * 0.02}s` }}
+                  >
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id={trainee.id}
                         checked={absentIds.has(trainee.id)}
                         onCheckedChange={() => handleToggleAbsent(trainee.id)}
+                        className="transition-all"
                       />
                       <label
                         htmlFor={trainee.id}
@@ -90,8 +96,8 @@ const AttendanceSection = ({ batchId, totalTrainees }: AttendanceSectionProps) =
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => navigate(`/batch/${batchId}/student/${trainee.id}`)}
-                      className="gap-1 h-7 text-xs"
+                      onClick={() => navigate(`/student/${trainee.id}`)}
+                      className="gap-1 h-7 text-xs hover:bg-primary/10 hover:text-primary transition-colors"
                     >
                       <Eye className="w-3 h-3" />
                       View
@@ -101,7 +107,7 @@ const AttendanceSection = ({ batchId, totalTrainees }: AttendanceSectionProps) =
               </div>
             </div>
             <p className="text-sm text-muted-foreground">
-              Present: {totalTrainees - absentIds.size} | Absent: {absentIds.size}
+              Present: {displayTrainees.length - absentIds.size} | Absent: {absentIds.size}
             </p>
           </div>
 
